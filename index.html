@@ -1,79 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A beginner-friendly calculator for addition, subtraction, multiplication, and division.">
+  <title>Beginner Calculator</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #1d2942; background: #f4f6fb; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
+    main { width: min(100%, 430px); padding: 30px; border: 1px solid #e4e8f1; border-radius: 22px; background: white; box-shadow: 0 24px 70px #22305418; }
+    .eyebrow { color: #5a51dc; text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 800; }
+    h1 { margin: 8px 0; font-size: 2rem; }
+    .intro { margin: 0 0 24px; color: #738097; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label { display: grid; gap: 7px; font-size: .9rem; font-weight: 700; }
+    input { width: 100%; min-width: 0; padding: 12px; border: 1px solid #d9deea; border-radius: 11px; font: inherit; }
+    input:focus { outline: 3px solid #d8d5ff; border-color: #5a51dc; }
+    .actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin: 20px 0 10px; }
+    button { min-height: 44px; border: 0; border-radius: 10px; background: #5a51dc; color: white; font: inherit; font-size: 1.15rem; font-weight: 800; cursor: pointer; }
+    button:hover { background: #4339c5; }
+    .clear { width: 100%; margin-top: 8px; background: #edf0f7; color: #35415a; font-size: .95rem; }
+    .clear:hover { background: #e2e6f0; }
+    #error { min-height: 1.4em; margin: 14px 0 0; color: #b42318; }
+    .result { min-height: 66px; margin-top: 10px; padding: 14px; border-radius: 13px; background: #f4f3ff; }
+    .result strong { display: block; margin-bottom: 4px; color: #686f82; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+    #result-value { font-size: 1.5rem; font-weight: 800; overflow-wrap: anywhere; }
+  </style>
 </head>
- <body>
+<body>
+  <main>
+    <span class="eyebrow">HTML + JavaScript practice</span>
+    <h1>Beginner Calculator</h1>
+    <p class="intro">Enter two numbers and choose an operation.</p>
+    <form id="calculator-form">
+      <div class="fields">
+        <label for="first-number">First number
+          <input id="first-number" name="first-number" type="number" step="any" inputmode="decimal" placeholder="e.g. 12" required>
+        </label>
+        <label for="second-number">Second number
+          <input id="second-number" name="second-number" type="number" step="any" inputmode="decimal" placeholder="e.g. 4" required>
+        </label>
+      </div>
+      <div class="actions" aria-label="Calculator operations">
+        <button type="button" data-operation="add" aria-label="Add">+</button>
+        <button type="button" data-operation="subtract" aria-label="Subtract">−</button>
+        <button type="button" data-operation="multiply" aria-label="Multiply">×</button>
+        <button type="button" data-operation="divide" aria-label="Divide">÷</button>
+      </div>
+      <button class="clear" type="reset">Clear</button>
+    </form>
+    <p id="error" role="alert" aria-live="polite"></p>
+    <div class="result" aria-live="polite">
+      <strong>Result</strong>
+      <output id="result-value">Choose an operation</output>
+    </div>
+  </main>
+  <script>
+    const form = document.querySelector("#calculator-form");
+    const firstInput = document.querySelector("#first-number");
+    const secondInput = document.querySelector("#second-number");
+    const errorMessage = document.querySelector("#error");
+    const result = document.querySelector("#result-value");
+    const operations = {
+      add: (first, second) => first + second,
+      subtract: (first, second) => first - second,
+      multiply: (first, second) => first * second,
+      divide: (first, second) => first / second,
+    };
 
-        <form action="post">
-            <input type="number" id="num3">
-            <input type="number" id="num4">
-            <input type="reset" id="num5">
+    function calculate(operation) {
+      errorMessage.textContent = "";
+      result.textContent = "—";
+      if (firstInput.value.trim() === "" || secondInput.value.trim() === "") {
+        errorMessage.textContent = "Enter both numbers first.";
+        return;
+      }
 
+      const first = Number(firstInput.value);
+      const second = Number(secondInput.value);
+      if (!Number.isFinite(first) || !Number.isFinite(second)) {
+        errorMessage.textContent = "Please enter valid numbers.";
+        return;
+      }
+      if (operation === "divide" && second === 0) {
+        errorMessage.textContent = "A number cannot be divided by zero.";
+        return;
+      }
 
-        </form>
-        <button onclick="add()">+</button>
-        <button onclick="sub()">-</button>
-        <button onclick="mul()">*</button>
-        <button onclick="divi()">/</button>
-        
+      const answer = operations[operation](first, second);
+      result.textContent = Number.isInteger(answer) ? String(answer) : String(Number(answer.toFixed(8)));
+    }
 
-        
+    document.querySelectorAll("[data-operation]").forEach((button) => {
+      button.addEventListener("click", () => calculate(button.dataset.operation));
+    });
 
-        <h3 id="result1" >result:</h3>
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      calculate("add");
+    });
 
-        <script>
-            function add(){
-
-                let c = Number (document.getElementById("num3").value);
-                let d = Number (document.getElementById("num4").value);
-                document.getElementById("result1").innerHTML= (c+d);
-
-            }
-        </script>
-
-        <script>
-            function sub(){
-
-                let e= Number(document.getElementById("num3").value)
-                let f= Number(document.getElementById("num4").value)
-                document.getElementById("result1").innerHTML=(e-f);
-
-            }
-        </script>
-
-        <script>
-            function mul(){
-
-                let g= Number(document.getElementById("num3").value)
-                let h= Number(document.getElementById("num4").value)
-                document.getElementById("result1").innerHTML=(g*h);
-
-            }
-        </script>
-
-        <script>
-            function divi(){
-
-                let g= Number(document.getElementById("num3").value)
-                let h= Number(document.getElementById("num4").value)
-                document.getElementById("result1").innerHTML=(g/h);
-
-            }
-        </script>
-
-        <script>
-            function clear(){
-                let cl= reset(document.getElementById("num5"))
-                
-
-                
-            }
-        </script>
-        <br><br>
-    
-    
+    form.addEventListener("reset", () => {
+      errorMessage.textContent = "";
+      result.textContent = "—";
+      result.textContent = "Choose an operation";
+    });
+  </script>
 </body>
 </html>
